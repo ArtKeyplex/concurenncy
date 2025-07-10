@@ -1,10 +1,15 @@
 package timeout
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
-// Work выполняет длительную задачу и возвращает ошибку,
-// если она заняла больше 100 мс или контекст был отменён.
 func Work(ctx context.Context) error {
-	// TODO: реализовать через select и time.After
-	return nil
+	select {
+	case <-time.After(100 * time.Millisecond):
+		return context.DeadlineExceeded
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
