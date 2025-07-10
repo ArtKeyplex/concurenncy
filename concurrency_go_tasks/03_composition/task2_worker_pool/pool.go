@@ -1,10 +1,39 @@
 package pool
 
-import _ "sync"
+import (
+	"sync"
+	"time"
+)
 
-// RunPool обрабатывает задачи параллельно в заданном количестве воркеров
-// и возвращает сумму результатов.
 func RunPool(jobs []int, workers int) int {
-	// TODO: реализовать пул воркеров и сбор результатов
-	return 0
+	jobsCh := make(chan int, len(jobs))
+	resultsCh := make(chan int, len(jobs))
+
+	var wg sync.WaitGroup
+
+	for range workers {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for job := range jobsCh {
+				time.Sleep(10 * time.Millisecond)
+				resultsCh <- job 
+			}
+		}()
+	}
+
+	for _, job := range jobs {
+		jobsCh <- job
+	}
+	close(jobsCh)
+
+	wg.Wait()
+	close(resultsCh)
+
+	sum := 0
+	for res := range resultsCh {
+		sum += res
+	}
+
+	return sum
 }

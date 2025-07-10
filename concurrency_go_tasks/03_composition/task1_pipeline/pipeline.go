@@ -1,7 +1,26 @@
 package pipeline
 
-// Run строит конвейер из трёх стадий: квадрат, умножение на 2 и суммирование.
 func Run(nums []int) int {
-	// TODO: реализовать конвейер обработки чисел
-	return 0
+    squareCh := make(chan int)
+    go func() {
+        defer close(squareCh)
+        for _, n := range nums {
+            squareCh <- n * n
+        }
+    }()
+
+    doubleCh := make(chan int)
+    go func() {
+        defer close(doubleCh)
+        for n := range squareCh {
+            doubleCh <- n * 2
+        }
+    }()
+
+    sum := 0
+    for n := range doubleCh {
+        sum += n
+    }
+
+    return sum
 }

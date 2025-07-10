@@ -2,8 +2,31 @@ package debounce
 
 import "time"
 
-// Debounce принимает значения и отдаёт только последнее после паузы d.
 func Debounce(d time.Duration, in <-chan int) <-chan int {
-	// TODO: реализовать дебаунс значений из канала
-	return nil
+	out := make(chan int)
+
+	go func() {
+		var (
+			lastVal int
+			timer   *time.Timer
+		)
+
+		for val := range in {
+			lastVal = val
+			if timer != nil {
+				timer.Stop()
+			}
+			timer = time.AfterFunc(d, func() {
+				out <- lastVal
+			})
+		}
+
+		if timer != nil {
+			timer.Stop()
+			out <- lastVal
+		}
+		close(out)
+	}()
+
+	return out
 }
