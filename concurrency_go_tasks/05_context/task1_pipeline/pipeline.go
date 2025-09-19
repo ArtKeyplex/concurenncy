@@ -7,5 +7,35 @@ import "context"
 // Возвращает итоговую сумму и ошибку контекста при отмене.
 func Run(ctx context.Context, nums []int) (int, error) {
 	// TODO: реализовать конвейер с остановкой по ctx
-	return 0, nil
+
+	doubled := make(chan int, len(nums))
+
+	go func() {
+
+		defer close(doubled)
+		for _, num := range nums {
+			select {
+			case <-ctx.Done():
+				return
+			case doubled <- num * 2:
+			}
+		}
+	}()
+
+	sum := 0
+	for num := range doubled {
+		select {
+		case <-ctx.Done():
+			return 0, ctx.Err()
+		default:
+			sum += num
+		}
+	}
+
+	select {
+	case <-ctx.Done():
+		return 0, ctx.Err()
+	default:
+		return sum, nil
+	}
 }
