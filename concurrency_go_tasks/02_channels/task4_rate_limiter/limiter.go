@@ -1,6 +1,8 @@
 package limiter
 
-import _ "time"
+import (
+	"time"
+)
 
 // Limiter ограничивает количество событий до 5 в секунду.
 type Limiter struct {
@@ -9,12 +11,35 @@ type Limiter struct {
 
 // NewLimiter создаёт новый лимитер с ёмкостью 5 токенов.
 func NewLimiter() *Limiter {
-	// TODO: инициализировать канал токенов и запуск пополнения
-	return &Limiter{}
+	lim := &Limiter{
+		tokens: make(chan struct{}, 5),
+	}
+
+	for i := 0; i < 5; i++ {
+		lim.tokens <- struct{}{}
+	}
+
+	go func() {
+		ticker := time.NewTicker(200 * time.Millisecond)
+		defer ticker.Stop()
+
+		for range ticker.C {
+			select {
+			case lim.tokens <- struct{}{}:
+			default:
+			}
+		}
+	}()
+
+	return lim
 }
 
 // Allow возвращает true, если событие разрешено в текущий момент.
 func (l *Limiter) Allow() bool {
-	// TODO: реализовать получение токена из канала
-	return false
+	select {
+	case <-l.tokens:
+		return true
+	default:
+		return false
+	}
 }
