@@ -1,6 +1,12 @@
 package timeout
 
-import "context"
+import (
+	"context"
+	"errors"
+)
+
+var ErrTimeout = errors.New("work timeout") // возвращается если работа заняла больше 100 мс
+var ErrCanceled = errors.New("work canceled") // возвращается при отмене контекста
 
 // Work выполняет длительную задачу и возвращает ошибку,
 // если она заняла больше 100 мс или контекст был отменён.
