@@ -18,3 +18,8 @@ func (l *Limiter) Allow() bool {
 	// TODO: реализовать получение токена из канала
 	return false
 }
+
+// Stop останавливает лимитер.
+func (l *Limiter) Stop() {
+	// TODO: остановить пополнение токенов
+}
