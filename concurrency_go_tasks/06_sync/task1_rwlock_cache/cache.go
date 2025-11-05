@@ -11,16 +11,22 @@ type Cache struct {
 // New создаёт новый кэш.
 func New() *Cache {
 	// TODO: инициализировать структуру кэша
-	return &Cache{}
+	return &Cache{mu: sync.RWMutex{}, data: make(map[string]interface{})}
 }
 
 // Set сохраняет значение по ключу.
 func (c *Cache) Set(key string, value interface{}) {
 	// TODO: реализовать запись с использованием RWMutex
+	c.mu.Lock()
+	c.data[key] = value
+	c.mu.Unlock()
 }
 
 // Get возвращает значение по ключу и признак его наличия.
 func (c *Cache) Get(key string) (interface{}, bool) {
 	// TODO: реализовать чтение с использованием RWMutex
-	return nil, false
+	c.mu.RLock()
+	res, ok := c.data[key]
+	c.mu.RUnlock()
+	return res, ok
 }
