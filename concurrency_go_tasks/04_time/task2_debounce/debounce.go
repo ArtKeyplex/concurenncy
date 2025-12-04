@@ -1,3 +1,4 @@
+// не вывез
 package debounce
 
 import "time"

@@ -1,3 +1,5 @@
+//Не вывез эту задачу...
+
 package limiter
 
 import _ "time"
@@ -15,6 +17,7 @@ func NewLimiter() *Limiter {
 
 // Allow возвращает true, если событие разрешено в текущий момент.
 func (l *Limiter) Allow() bool {
+
 	// TODO: реализовать получение токена из канала
 	return false
 }

@@ -11,10 +11,19 @@ type Counter struct {
 // Inc увеличивает счётчик на 1 с защитой от гонок.
 func (c *Counter) Inc() {
 	// TODO: реализовать инкремент с использованием мьютекса
+
+	c.mu.Lock()
+	c.v++
+	c.mu.Unlock()
 }
 
 // Value возвращает текущее значение счётчика безопасно для гонок.
 func (c *Counter) Value() int {
 	// TODO: вернуть значение с учётом блокировки
-	return 0
+
+	c.mu.Lock()
+	res := c.v
+	c.mu.Unlock()
+
+	return res
 }
