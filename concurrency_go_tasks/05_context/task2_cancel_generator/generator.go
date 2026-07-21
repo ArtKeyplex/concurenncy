@@ -6,5 +6,27 @@ import "context"
 // начиная с нуля. Генерация прекращается при отмене ctx.
 func Generate(ctx context.Context) <-chan int {
 	// TODO: реализовать генератор чисел с учётом отмены
-	return nil
+	select {
+	case <-ctx.Done():
+		ch := make(chan int)
+		close(ch)
+		return ch
+	default:
+		// Если контекст активен, идем дальше
+	}
+
+	ch := make(chan int)
+	go func() {
+		defer close(ch)
+		i := 0
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case ch <- i:
+				i++
+			}
+		}
+	}()
+	return ch
 }
