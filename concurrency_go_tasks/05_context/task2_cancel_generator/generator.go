@@ -12,7 +12,6 @@ func Generate(ctx context.Context) <-chan int {
 		close(ch)
 		return ch
 	default:
-		// Если контекст активен, идем дальше
 	}
 
 	ch := make(chan int)
