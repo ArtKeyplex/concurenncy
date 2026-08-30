@@ -1,15 +1,38 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"os"
+	"sync"
 )
 
-// PingPong должен запускать две горутины "ping" и "pong",
-// которые поочередно выводят строки пять раз каждая.
-// Реализуйте синхронизацию через каналы и ожидание завершения.
 func PingPong(w io.Writer) {
-	// TODO: реализовать обмен сообщениями между горутинами
+	wg := sync.WaitGroup{}
+	ch := make(chan string)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 5; i++ {
+			ch <- "ping"
+			fmt.Fprintln(w, "ping", i+1)
+			<-ch
+
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 5; i++ {
+			<-ch
+			fmt.Fprintln(w, "pong", i+1)
+			ch <- "pong"
+		}
+	}()
+
+	wg.Wait()
 }
 
 func main() {
