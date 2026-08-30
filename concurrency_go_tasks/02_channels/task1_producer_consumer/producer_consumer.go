@@ -1,7 +1,6 @@
 package producerconsumer
 
 import (
-	"fmt"
 	"io"
 	"strconv"
 	"sync"
@@ -26,11 +25,9 @@ func Run(w io.Writer) {
 	}()
 
 	go func() {
+		defer wg.Done()
 		for i := range intCh {
-			if _, err := w.Write([]byte(strconv.Itoa(i) + "\n")); err != nil {
-				fmt.Println(err)
-				return
-			}
+			w.Write([]byte(strconv.Itoa(i) + "\n"))
 		}
 	}()
 

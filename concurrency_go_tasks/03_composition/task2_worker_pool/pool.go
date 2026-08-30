@@ -7,6 +7,11 @@ import (
 // RunPool обрабатывает задачи параллельно в заданном количестве воркеров
 // и возвращает сумму результатов.
 func RunPool(jobs []int, workers int) int {
+
+	if workers <= 0 {
+		workers = 1
+	}
+
 	jobsCh := make(chan int)
 	resultCh := make(chan int)
 

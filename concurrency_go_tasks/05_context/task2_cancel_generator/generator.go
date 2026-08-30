@@ -12,11 +12,15 @@ func Generate(ctx context.Context) <-chan int {
 		defer close(out)
 		n := 0
 		for {
+			if ctx.Err() != nil {
+				return
+			}
+
 			select {
-			case out <- n:
-				n++
 			case <-ctx.Done():
 				return
+			case out <- n:
+				n++
 			}
 		}
 	}()

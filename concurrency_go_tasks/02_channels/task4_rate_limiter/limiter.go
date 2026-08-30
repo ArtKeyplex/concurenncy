@@ -1,6 +1,7 @@
 package limiter
 
 import (
+	"sync"
 	"time"
 )
 
@@ -8,7 +9,10 @@ import (
 type Limiter struct {
 	tokens chan struct{}
 	stop   chan struct{}
+	once   sync.Once
 }
+
+var o sync.Once
 
 // NewLimiter создаёт новый лимитер с ёмкостью 5 токенов.
 func NewLimiter() *Limiter {
@@ -22,13 +26,14 @@ func NewLimiter() *Limiter {
 	}
 
 	go func() {
+		defer ticker.Stop()
+
 		for {
 			select {
 			case <-ticker.C:
 				select {
 				case ch <- struct{}{}:
 				default:
-					continue
 				}
 			case <-stop:
 				return
@@ -53,5 +58,7 @@ func (l *Limiter) Allow() bool {
 // Stop останавливает лимитер.
 func (l *Limiter) Stop() {
 	// TODO: остановить пополнение токенов
-	close(l.stop)
+	l.once.Do(func() {
+		close(l.stop)
+	})
 }
