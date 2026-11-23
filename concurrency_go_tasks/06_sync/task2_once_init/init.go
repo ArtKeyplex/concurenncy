@@ -3,17 +3,21 @@ package initonce
 import "sync"
 
 var (
-	once        sync.Once
-	initialized bool
+	once        sync.Once // once гарантирует, что инициализация выполнится только один раз
+	initialized bool      // initialized показывает, была ли выполнена инициализация
 )
 
 // Init выполняет однократную инициализацию ресурса.
-func Init() {
-	// TODO: инициализировать ресурс через sync.Once
+// TODO: инициализировать ресурс через sync.Once
+
+func Init() { // Init выполняет однократную инициализацию ресурса
+	once.Do(func() { // once.Do выполняет функцию только один раз, даже если Init вызовут несколько раз
+		initialized = true // здесь происходит инициализация ресурса, после её завершения ставим флаг в true
+	})
 }
 
 // Initialized возвращает, был ли инициализирован ресурс.
+// TODO: вернуть признак инициализации
 func Initialized() bool {
-	// TODO: вернуть признак инициализации
-	return false
+	return initialized // возвращаем текущее значение флага
 }
