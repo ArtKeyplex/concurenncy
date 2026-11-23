@@ -9,18 +9,26 @@ type Cache struct {
 }
 
 // New создаёт новый кэш.
-func New() *Cache {
-	// TODO: инициализировать структуру кэша
-	return &Cache{}
+// TODO: инициализировать структуру кэша
+func New() *Cache { //new создаёт новый кэш
+	return &Cache{
+		data: make(map[string]interface{}), // cоздаём кэш и сразу создаём пустую карту внутри него
+	}
 }
 
 // Set сохраняет значение по ключу.
-func (c *Cache) Set(key string, value interface{}) {
-	// TODO: реализовать запись с использованием RWMutex
+// TODO: реализовать запись с использованием RWMutex
+func (c *Cache) Set(key string, value interface{}) { // set сохраняет значение по ключу
+	c.mu.Lock()         // закрываем замок для записи, чтобы другие горутины не могли одновременно менять карту
+	c.data[key] = value // записываем значение в карту по ключу
+	c.mu.Unlock()       // открываем замок после записи
 }
 
 // Get возвращает значение по ключу и признак его наличия.
-func (c *Cache) Get(key string) (interface{}, bool) {
-	// TODO: реализовать чтение с использованием RWMutex
-	return nil, false
+// TODO: реализовать чтение с использованием RWMutex
+func (c *Cache) Get(key string) (interface{}, bool) { // get возвращает значение по ключу и признак его наличия
+	c.mu.RLock()             // закрываем замок для чтения, чтобы безопасно прочитать данные из карты
+	value, ok := c.data[key] // читаем значение из карты, ok будет true, если ключ есть, и false, если ключа нет
+	c.mu.RUnlock()           // открываем замок после чтения
+	return value, ok         // возвращаем значение и признак наличия ключа
 }
